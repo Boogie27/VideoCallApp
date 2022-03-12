@@ -1,18 +1,46 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { 
     View, 
     Text,
     StyleSheet,
+    Platform,
+    PermissionsAndroid
 } from 'react-native'
 import CallActionButton from './CallActionButton'
+import {useNavigation} from '@react-navigation/core'
 
 
+
+const permissions = [
+    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    PermissionsAndroid.PERMISSIONS.CAMERA
+]
 
 
 export default function CallScreen({route}) {
     const user = route.params;
+    const navigation = useNavigation()
+    const [permissionsGranted, setPermissionsGranted] = useState(false)
    
-    console.log(user)
+    const getPermissions = async ()  => {
+        const granted = await PermissionsAndroid.requestMultiple(permissions)
+        const recordAudioGranted = granted[PermissionsAndroid.PERMISSIONS.RECORD_AUDIO] === 'granted'
+        const cameraGranted = granted[PermissionsAndroid.PERMISSIONS.CAMERA] === 'granted'
+        if(!recordAudioGranted || !cameraGranted){
+            return navigation.navigate('Contacts')
+        }else{
+            setPermissionsGranted(true)
+        }
+    }
+
+    
+    useEffect(() => {
+        if(Platform.OS == 'android'){
+            getPermissions()
+        }else{
+            setPermissionsGranted(true)
+        }
+    }, [])
 
 
     return (

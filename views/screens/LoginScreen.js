@@ -6,14 +6,60 @@ import {
     StyleSheet,
     Pressable,
 } from 'react-native'
-// import {Voximplant} from 'react-native-voximplant'
+import {Voximplant} from 'react-native-voximplant'
+import {useNavigation} from '@react-navigation/core'
+import { APP_NAME, ACCOUNT_NAME } from '../components/Constant'
+
+
+
 
 export default function LoginScreen() {
+    const navigation = useNavigation()
     const [ username, setUsername ] = useState('')
     const [ password, setPassword ] = useState('')
+    
+   
+    const client = Voximplant.getInstance();
 
-    // const client = Voximplant.getInstance();
+    const connect_voximplant = () => {
+       const connection = async () => {
+           const state = await client.getClientState()
+           if (state === Voximplant.ClientState.DISCONNECTED){
+                await client.connect()
+            }else if(state === Voximplant.ClientState.LOGGED_IN){
+                redirect()
+            }
+       }
+       connection()
+    }
 
+    useEffect(() => {
+        connect_voximplant()
+    }, [])
+
+
+    const login = async () => {
+       try{
+            const full_username = `${username}@${APP_NAME}.${ACCOUNT_NAME}.voximplant.com`
+            await client.login(full_username, password)
+            redirect()
+       }catch (e){
+            alert(`${e.name} erorr code: ${e.code} ${e.message}`);
+       }
+    }
+
+   
+    const redirect = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{
+                name: "Contacts"
+            }],
+
+        })
+    }
+   
+     
     return (
         <View style={styles.page}>
             <Text style={styles.header}>Login</Text>
@@ -21,7 +67,7 @@ export default function LoginScreen() {
                 <TextInput value={username} onChangeText={setUsername} placeholder="Username" autoCapitalize="none" style={styles.input}/>
                 <TextInput value={password} onChangeText={setPassword} placeholder="Password" autoCapitalize="none" secureTextEntry style={styles.input}/>
                 <Pressable style={styles.button}>
-                    <Text style={styles.buttonText}>Sign in</Text>
+                    <Text onPress={login}style={styles.buttonText}>Sign in</Text>
                 </Pressable>
             </View>
         </View>
