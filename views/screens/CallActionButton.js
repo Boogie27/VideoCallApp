@@ -15,7 +15,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 
 
-export default function CallActionButton() {
+export default function CallActionButton({onHangup}) {
     const navigation = useNavigation()
     const [isCameraOn, setIsCameraOn] = useState(true)
     const [isMicroPhoneOn, setIsMicroPhoneOn] = useState(true)
@@ -30,10 +30,7 @@ export default function CallActionButton() {
     const onToggleMicroPhone = () => {
         setIsMicroPhoneOn(!isMicroPhoneOn)
     }
-    const onHangup = () => {
-        navigation.navigate("Contacts")
-    }
-
+   
 
     return (
         <View style={styles.bottomContainer}>
